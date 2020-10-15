@@ -1,6 +1,6 @@
 <?php
 /**
-* @package w_a_p_l
+* @package woocommerce_special_discount
 * @version 1.0
 */
 /*
@@ -27,31 +27,9 @@ along with Woocommerce Advanced plugin layout; if not, write to the Free Softwar
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-define('CHI_PATH', dirname(__FILE__));
+define('WC_SPECIAL_DISCOUNT_PATH', dirname(__FILE__));
 $plugin = plugin_basename(__FILE__);
-define('CHI_URL', plugin_dir_url($plugin));
+define('WC_SPECIAL_DISCOUNT_URL', plugin_dir_url($plugin));
 
-require CHI_PATH.'/inc/special-discount-class.php';
-require CHI_PATH.'/inc/special-discount-menu.php';
-require CHI_PATH.'/inc/special-discount-ajax.php';
+require(WC_SPECIAL_DISCOUNT_PATH.'/inc/special-discount-class.php');
 
-add_filter( 'woocommerce_get_price_html', 'change_displayed_sale_price_html', 10, 2 );
-function change_displayed_sale_price_html( $price, $product ) {
-    // Only on sale products on frontend and excluding min/max price on variable products
-    if( $product->is_on_sale() && ! is_admin() && ! $product->is_type('variable')){
-        // Get product prices
-        $regular_price = (float) $product->get_regular_price(); // Regular price
-        $sale_price = (float) $product->get_price(); // Active price (the "Sale price" when on-sale)
-
-        // "Saving price" calculation and formatting
-        $saving_price = wc_price( $regular_price - $sale_price );
-
-        // "Saving Percentage" calculation and formatting
-        $precision = 1; // Max number of decimals
-        $saving_percentage = round( 100 - ( $sale_price / $regular_price * 100 ), 1 ) . '%';
-
-        // Append to the formated html price
-        $price .= sprintf( __('<p class="saved-sale">Save: %s <em>(%s)</em></p>', 'woocommerce' ), $saving_price, $saving_percentage );
-    }
-    return $price;
-}
