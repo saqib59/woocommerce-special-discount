@@ -37,7 +37,7 @@ if (isset($_GET['success'])) {
             <div class="form-group row">
             <!-- <label for="prod_discount" class="col-sm-2 col-form-label">Discount in %</label> -->
             <div class="col-sm-10">
-              <input type="number" class="form-control" id="prod_discount" name="prod_discount" value="<?php echo get_option('prod_discount'); ?>">
+              <input type="number" placeholder="Discount %" class="form-control" id="prod_discount" name="prod_discount" value="<?php echo get_option('prod_discount'); ?>">
             </div>
           </div>
           </div>
