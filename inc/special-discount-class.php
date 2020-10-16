@@ -1,10 +1,6 @@
 <?php
 // ini_set('max_execution_time', 0);
-
 class SpecialDiscountMain{
-
-    public $loginregister96_login = array();
-    public $loginregister96_register = array();
 
     function __construct(){
         add_action( 'wp_enqueue_scripts', array($this , 'login_register96_scripts') );
@@ -31,34 +27,23 @@ class SpecialDiscountMain{
 
              $categories_array = array();
              $index = 0;
-             $checked ='';
 
              foreach ($all_categories as $cat) {
-                if($cat->category_parent == 0) {
+               $checked ='';
                     $category_id = $cat->term_id;
-                    if (count($discountedCategories)>0 && !empty($discountedCategories)) {
+                    if (is_array($discountedCategories) && count($discountedCategories)>0 && !empty($discountedCategories)) {
                       foreach ($discountedCategories as $key => $catId) {
                          if ($category_id == $catId) {
                             $checked = 'selected';
                           }
-                          else{
-                            $checked = '';
-
-                          }
-                        $categories_array[$index] ='<option value="'.$cat->cat_ID.'" '.$checked.' > '.$cat->name. '</option>';
-                        $index++;
-
                       }
                   }
-                  else{
-                        $categories_array[$index] ='<option value="'.$cat->cat_ID.'" > '.$cat->name. '</option>';
-                        $index++;
-
-                  }
-                }
+                 
+                  $categories_array[$index] ='<option value="'.$cat->cat_ID.'" '.$checked.' > '.$cat->name. '</option>';
+                  $index++;
               } 
 
-                return $categories_array;
+                return array_unique($categories_array);
   }
     public function apply_special_discount(){
 
@@ -84,13 +69,38 @@ class SpecialDiscountMain{
                   while ($products->have_posts()) {
                       $products->the_post();
                       $prodId    = get_the_ID();
-                      $regularPrice = (float) get_post_meta($prodId,'_regular_price',true); // Regular price
-                      $salePrice = (float) get_post_meta($prodId,'_sale_price',true);  // Active price (the "Sale price" when on-sale)
-                      $amount = floatval($discountInPer);
-                      $newRegularprice = $regularPrice * ((100-$amount) / 100);
 
-                      update_post_meta( $prodId, '_sale_price',(float) $newRegularprice);
-                      update_post_meta( $prodId, '_price',(float) $newRegularprice);
+                        $args = array(
+                            'post_parent' => $prodId, // Current post's ID
+                            'post_type' => 'product_variation', // Current post's ID
+                        );
+                        $variations = get_children( $args );
+                        // Check if the post has any child
+                        if ( ! empty($variations) ) {
+
+                           foreach ( $variations as $variation ) {
+                            // The product has at least one variation
+                                $variationID    = $variation->ID;
+                                $regularPrice = (float) get_post_meta($variationID,'_regular_price',true); // Regular price
+                                $salePrice = (float) get_post_meta($variationID,'_sale_price',true);  // Active price (the "Sale price" when on-sale)
+                                $amount = floatval($discountInPer);
+                                $newRegularprice = $regularPrice * ((100-$amount) / 100);
+                                update_post_meta( $variationID, '_sale_price',(float) $newRegularprice);
+                                update_post_meta( $variationID, '_price',(float) $newRegularprice);
+                            }
+                          
+                        } else {
+                            // There is no variaiton for this prod
+                            $regularPrice = (float) get_post_meta($prodId,'_regular_price',true); // Regular price
+                            $salePrice = (float) get_post_meta($prodId,'_sale_price',true);  // Active price (the "Sale price" when on-sale)
+                            $amount = floatval($discountInPer);
+                            $newRegularprice = $regularPrice * ((100-$amount) / 100);
+
+                            update_post_meta( $prodId, '_sale_price',(float) $newRegularprice);
+                            update_post_meta( $prodId, '_price',(float) $newRegularprice);
+                        }
+
+                      
 
                   }
                   update_option('prod_discount', $discountInPer);
@@ -98,7 +108,7 @@ class SpecialDiscountMain{
               }
           }
                   update_option('discounted_category', $catIdsArray);
-                   wp_redirect( admin_url('edit.php?post_type=product&page=login-register-96&success=true') );
+                   wp_redirect( admin_url('edit.php?post_type=product&page=woocommerce-special-dicount&success=true') );
 
     }
    public function special_discount_plugin_menu() {

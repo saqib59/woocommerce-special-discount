@@ -26,10 +26,56 @@ You should have received a copy of the GNU General Public License
 along with Woocommerce Advanced plugin layout; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+} // Exit if accessed directly
 
-define('WC_SPECIAL_DISCOUNT_PATH', dirname(__FILE__));
-$plugin = plugin_basename(__FILE__);
-define('WC_SPECIAL_DISCOUNT_URL', plugin_dir_url($plugin));
+/*if( ! function_exists( 'wc_special_discount_constructor' ) ) {
+	function wc_special_discount_constructor() {
 
-require(WC_SPECIAL_DISCOUNT_PATH.'/inc/special-discount-class.php');
+        // Let's start the game!
+    }
+}
 
+
+add_action( 'wc_special_discount_init', 'wc_special_discount_constructor' );*/
+
+if( ! function_exists( 'wc_special_discount_install' ) ) {
+    function wc_special_discount_install() {
+
+        if ( ! function_exists( 'is_plugin_active' ) ) {
+            require_once( ABSPATH . 'wp-admin/includes/plugin.php' );
+        }
+
+        if ( ! function_exists( 'WC' ) ) {
+            add_action( 'admin_notices', 'woocommerce_special_discount_activate_error' );
+        }
+       
+        else {
+				require(WC_SPECIAL_DISCOUNT_PATH.'/inc/special-discount-class.php');
+        }
+    }
+}
+add_action( 'plugins_loaded', 'wc_special_discount_install', 11 );
+
+if( ! function_exists( 'woocommerce_special_discount_activate_error' ) ) {
+    function woocommerce_special_discount_activate_error() {
+    	/**
+		 * Check if WooCommerce is active
+		 **/
+        ?>
+        <div class="error">
+            <p><?php echo 'Woocommerce Special Discount ' . __( 'is enabled but not effective. It requires WooCommerce in order to work.', 'woocommerce-special-discount' ); ?></p>
+        </div>
+    <?php
+    }
+}
+
+
+if (! define('WC_SPECIAL_DISCOUNT_PATH')) {
+	define('WC_SPECIAL_DISCOUNT_PATH', dirname(__FILE__));
+}
+if (! define('WC_SPECIAL_DISCOUNT_URL')) {
+	$plugin = plugin_basename(__FILE__);
+	define('WC_SPECIAL_DISCOUNT_URL', plugin_dir_url($plugin));
+}
