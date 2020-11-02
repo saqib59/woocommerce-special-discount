@@ -25,7 +25,7 @@ if (isset($_GET['success'])) {
           <div class="form-group row">
             <!-- <label for="login_form_id96" class="col-sm-2 col-form-label">Select Category</label> -->
             <div class="col-sm-10">
-              <select name="discounted_category[]" id="prod_cats" class="form-control" multiple="">
+              <select name="discounted_category[]" id="prod_cats" required="" class="form-control" multiple="">
                 <option value="" >Select Category</option>
                 <?php
                 foreach ($SpecialDiscountMain2->get_all_wc_categories() as $index => $cat_name) {
@@ -37,7 +37,7 @@ if (isset($_GET['success'])) {
             <div class="form-group row">
             <!-- <label for="prod_discount" class="col-sm-2 col-form-label">Discount in %</label> -->
             <div class="col-sm-10">
-              <input type="number" placeholder="Discount %" class="form-control" id="prod_discount" name="prod_discount" value="<?php echo get_option('prod_discount'); ?>">
+              <input type="number" placeholder="Discount %" class="form-control" required=""> id="prod_discount" name="prod_discount" value="<?php echo get_option('prod_discount'); ?>">
             </div>
           </div>
           </div>
